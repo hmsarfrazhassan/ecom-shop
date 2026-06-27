@@ -1,5 +1,4 @@
 import User from "../models/userModel.js";
-import bcrypt from "bcrypt";
 
 export const getUsers = async (req, res) => {
   try {
@@ -32,7 +31,6 @@ export const addUser = async (req, res) => {
         message: "Username, email address and password are required",
       });
     }
-    const hashPassword = await bcrypt.hash(10, password);
     const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({
@@ -40,12 +38,19 @@ export const addUser = async (req, res) => {
         message: "Use other email address",
       });
     }
-    const newUser = await User.create({ username, email, hashPassword });
+    const newUser = await User.create({ username, email, password });
     return res.status(201).json({
       success: true,
       data: newUser,
     });
   } catch (error) {
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((err) => err.message);
+      return res.status(400).json({
+        success: false,
+        errors,
+      });
+    }
     return res.status(400).json({
       success: false,
       message: error.message,
@@ -53,8 +58,90 @@ export const addUser = async (req, res) => {
   }
 };
 
-export const getUser = async (req, res) => {};
+export const getUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      res.status(404).json({
+        success: false,
+        message: "User id is required.",
+      });
+    }
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not exist",
+      });
+    }
+    return res.ststus(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
-export const deleteUser = async (req, res) => {};
+export const deleteUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      res.status(404).json({
+        success: false,
+        message: "User id is required.",
+      });
+    }
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not exist",
+      });
+    }
+    return res.ststus(200).json({
+      success: true,
+      message: "User successfully deleted",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
-export const updateUser = async (req, res) => {};
+export const updateUser = async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      res.status(404).json({
+        success: false,
+        message: "User id is required.",
+      });
+    }
+    const user = await User.findByIdAndUpdate(id, req.body, {
+      runValidators: true,
+      returnDocument: "after",
+      context: "query",
+    });
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not exist",
+      });
+    }
+    return res.ststus(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import slugify from "slugify";
+import generateSlug from "../utils/generateSlug.js";
 
 const productSchema = new mongoose.Schema(
   {
@@ -97,8 +97,15 @@ const productSchema = new mongoose.Schema(
 );
 
 productSchema.pre("save", function () {
-  const baseSlug = slugify(this.name, { lower: true, strict: true });
-  this.slug = baseSlug;
+  this.slug = generateSlug(this.name);
+});
+
+productSchema.pre("findOneAndUpdate", function () {
+  const update = this.getUpdate();
+
+  if (update.name) {
+    update.slug = generateSlug(update.name);
+  }
 });
 
 export default mongoose.model("Product", productSchema);

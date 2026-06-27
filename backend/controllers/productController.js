@@ -3,12 +3,6 @@ import Product from "../models/productModel.js";
 export const getProducts = async (req, res) => {
   try {
     const allProducts = await Product.find();
-    if (!allProducts.length) {
-      return res.status(400).json({
-        success: false,
-        message: "Products not found",
-      });
-    }
     return res.status(200).json({
       success: true,
       count: allProducts.length,
@@ -53,13 +47,6 @@ export const getProduct = async (req, res) => {
 export const addProduct = async (req, res) => {
   try {
     const { name, price, description, category, seller, stock } = req.body;
-    if (!name && !price && !description && !category && !seller && !stock) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "name, price, description, category, seller and stock fields are required",
-      });
-    }
     const product = await Product.findOne({ name });
     if (product) {
       return res.status(400).json({
@@ -74,16 +61,21 @@ export const addProduct = async (req, res) => {
       data: newProduct,
     });
   } catch (error) {
-    return res.status(400).json({
+    if (error.name === "ValidationError") {
+      const errors = Object.values(error.errors).map((err) => err.message);
+      return res.status(400).json({
+        success: false,
+        errors,
+      });
+    }
+    return res.status(500).json({
       success: false,
-      error: error.message,
+      message: error.message,
     });
   }
 };
 
 export const updateProduct = async (req, res) => {
-  const indexes = await Product.collection.indexes();
-  console.log(indexes);
   try {
     const id = req.params.id;
     if (!id) {
@@ -132,6 +124,12 @@ export const deleteProduct = async (req, res) => {
       });
     }
     const product = await Product.findByIdAndDelete(id);
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
     return res.status(200).json({
       success: true,
       message: "Product successfully deleted",

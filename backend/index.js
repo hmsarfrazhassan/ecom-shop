@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 
 app.use("/api/v1/product", productRoutes);
-app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/auth", userRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {

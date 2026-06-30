@@ -1,5 +1,11 @@
 import express from "express";
-import { getUsers, login, register } from "../controllers/userControllers.js";
+import {
+  getUsers,
+  login,
+  register,
+  updatePassword,
+  updateProfile,
+} from "../controllers/userControllers.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 import { authorizeRoles } from "../middlewares/authorizeRoles.js";
 
@@ -14,5 +20,7 @@ router.get("/me", isAuthenticated, (req, res) => {
     user: req.user,
   });
 });
+router.route("/me/update").post(isAuthenticated, updateProfile);
+router.route("/me/update/password").post(isAuthenticated, updatePassword);
 
 export default router;

@@ -67,7 +67,7 @@ export const login = async (req, res) => {
       });
     }
     const isPasswordCorrect = await user.comparePassword(password);
-    console.log("what isPassword correct", isPasswordCorrect);
+
     if (!isPasswordCorrect) {
       return res.status(401).json({
         success: false,
@@ -143,13 +143,14 @@ export const deleteUser = async (req, res) => {
   }
 };
 
-export const updateUser = async (req, res) => {
+export const updateProfile = async (req, res) => {
   try {
-    const id = req.params.id;
-    if (!id) {
-      res.status(404).json({
+    const { username } = req.body;
+    const { id } = req.user;
+    if (!username) {
+      return res.status(400).json({
         success: false,
-        message: "User id is required.",
+        message: "Username is required",
       });
     }
     const user = await User.findByIdAndUpdate(id, req.body, {
@@ -163,9 +164,10 @@ export const updateUser = async (req, res) => {
         message: "User not exist",
       });
     }
-    return res.ststus(200).json({
+    const token = user.getJwtToken();
+    return res.status(200).json({
       success: true,
-      data: user,
+      token,
     });
   } catch (error) {
     res.status(500).json({
@@ -173,4 +175,34 @@ export const updateUser = async (req, res) => {
       message: error.message,
     });
   }
+};
+
+export const updatePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const { id } = req.user;
+    const user = await User.findById(id).select("+password");
+    const isPasswordCorrect = await user.comparePassword(oldPassword);
+    if (!isPasswordCorrect) {
+      return res.status(400).json({
+        success: false,
+        message: "Incorrect password",
+      });
+    }
+    user.password = newPassword;
+    await user.save();
+    return res.status(201).json({
+      success: true,
+      message: "Password successfully updated.",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+export const logout = async (req, res) => {
+  try {
+  } catch (error) {}
 };

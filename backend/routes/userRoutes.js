@@ -20,7 +20,7 @@ router.get("/me", isAuthenticated, (req, res) => {
     user: req.user,
   });
 });
-router.route("/me/update").post(isAuthenticated, updateProfile);
+router.route("/me/update/profile").post(isAuthenticated, updateProfile);
 router.route("/me/update/password").post(isAuthenticated, updatePassword);
 
 export default router;

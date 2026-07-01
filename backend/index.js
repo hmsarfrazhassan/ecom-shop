@@ -8,10 +8,19 @@ const app = express();
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.send("API is running");
+});
+
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/auth", userRoutes);
 
-const PORT = process.env.PORT;
-app.listen(PORT, () => {
-  console.log("app is running on the port", PORT);
-});
+const PORT = process.env.PORT || 5000;
+
+if (process.env.NODE_ENV !== "PRODUCTION") {
+  app.listen(PORT, () => {
+    console.log(`Running on ${PORT}`);
+  });
+}
+
+export default app;

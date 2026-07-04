@@ -3,8 +3,10 @@ import {
   getUsers,
   login,
   register,
+  resetPassword,
   updatePassword,
   updateProfile,
+  updateResetPassword,
 } from "../controllers/userControllers.js";
 import { isAuthenticated } from "../middlewares/auth.js";
 import { authorizeRoles } from "../middlewares/authorizeRoles.js";
@@ -22,5 +24,7 @@ router.get("/me", isAuthenticated, (req, res) => {
 });
 router.route("/me/update/profile").post(isAuthenticated, updateProfile);
 router.route("/me/update/password").post(isAuthenticated, updatePassword);
+router.route("/reset-password").post(resetPassword);
+router.route("/reset-password/:token").put(updateResetPassword);
 
 export default router;

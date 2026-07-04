@@ -1,5 +1,14 @@
 import User from "../models/userModel.js";
 import getJwtToken from "../models/userModel.js";
+import nodemailer from "nodemailer";
+import { resetPasswordTemplate } from "../utils/resetPasswordTemplate.js";
+
+// import fs from "fs";
+// import path from "path";
+
+// const htmlPath = path.resolve("./backend/utils/resetPasswordTemplate.html");
+// console.log("html path", htmlPath);
+// const htmlContent = fs.readFileSync(htmlPath, "utf-8");
 
 export const getUsers = async (req, res) => {
   try {
@@ -202,7 +211,59 @@ export const updatePassword = async (req, res) => {
     });
   }
 };
-export const logout = async (req, res) => {
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.EMAILPASSWORD,
+  },
+});
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) {
+      return res.status(200).json({
+        success: true,
+        youfrom: "!existing",
+        message:
+          "If an account with that email exists, we've sent password reset instructions.",
+      });
+    }
+
+    const resetToken = existingUser.getResetPasswordToken();
+    resetPasswordTemplate(resetToken);
+
+    const resetLink = `http://localhost:5555/api/v1/auth/reset-password/${resetToken}`;
+    await existingUser.save({ validateBeforeSave: false });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL,
+      to: email,
+      subject: "Reset password",
+      html: resetPasswordTemplate(resetLink),
+    });
+
+    return res.status(200).json({
+      success: true,
+      youfrom: "existing",
+      message:
+        "If an account with that email exists, we've sent password reset instructions.",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+export const updateResetPassword = async (req, res) => {
   try {
   } catch (error) {}
 };

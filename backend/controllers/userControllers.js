@@ -239,7 +239,7 @@ export const resetPassword = async (req, res) => {
     const resetToken = existingUser.getResetPasswordToken();
     resetPasswordTemplate(resetToken);
 
-    const resetLink = `http://localhost:5555/api/v1/auth/reset-password/${resetToken}`;
+    const resetLink = `http://localhost:5173/reset-password/${resetToken}`;
     await existingUser.save({ validateBeforeSave: false });
 
     await transporter.sendMail({

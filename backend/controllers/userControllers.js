@@ -2,6 +2,7 @@ import User from "../models/userModel.js";
 import getJwtToken from "../models/userModel.js";
 import nodemailer from "nodemailer";
 import { resetPasswordTemplate } from "../utils/resetPasswordTemplate.js";
+import crypto from "crypto";
 
 // import fs from "fs";
 // import path from "path";
@@ -265,5 +266,47 @@ export const resetPassword = async (req, res) => {
 
 export const updateResetPassword = async (req, res) => {
   try {
-  } catch (error) {}
+    const resetPasswordToken = crypto
+      .createHash("sha256")
+      .update(req.params.token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpire: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: "Reset token is invalid or has expired",
+      });
+    }
+
+    const { password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Passwords do not match",
+      });
+    }
+
+    user.password = password;
+
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };

@@ -2,7 +2,6 @@ import Product from "../models/productModel.js";
 
 export const getProducts = async (req, res) => {
   try {
-    // const allProducts = await Product.find();
     const resultPerPage = Number(req.query.limit) || 10;
     const apiFeatures = new ApiFeatures(Product.find(), req.query)
       .search()

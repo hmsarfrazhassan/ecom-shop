@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node backend/index.js",
     "dev": "NODE_ENV=DEVELOPMENT nodemon backend/index.js",
-    "prod": "NODE_ENV=PRODUCTION node backend/index.js"
+    "prod": "NODE_ENV=PRODUCTION node backend/index.js",
+    "seeder": "node backend/seeders/productSeeder.js"
   },
   "keywords": [],
   "author": "",

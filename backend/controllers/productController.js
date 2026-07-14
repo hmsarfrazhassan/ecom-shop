@@ -1,4 +1,5 @@
 import Product from "../models/productModel.js";
+import ApiFeatures from "../utils/apiFeatures.js";
 
 export const getProducts = async (req, res) => {
   try {

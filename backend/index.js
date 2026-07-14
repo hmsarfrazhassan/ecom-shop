@@ -7,6 +7,8 @@ import userRoutes from "./routes/userRoutes.js";
 connectionDB();
 const app = express();
 
+app.set("query parser", "extended");
+
 app.use(express.json());
 app.use(cors());
 

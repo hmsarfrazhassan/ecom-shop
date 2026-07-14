@@ -2,11 +2,18 @@ import Product from "../models/productModel.js";
 
 export const getProducts = async (req, res) => {
   try {
-    const allProducts = await Product.find();
+    // const allProducts = await Product.find();
+    const resultPerPage = Number(req.query.limit) || 10;
+    const apiFeatures = new ApiFeatures(Product.find(), req.query)
+      .search()
+      .filter()
+      .pagination(resultPerPage);
+
+    const products = await apiFeatures.query;
     return res.status(200).json({
       success: true,
-      count: allProducts.length,
-      data: allProducts,
+      count: products.length,
+      data: products,
     });
   } catch (error) {
     return res.status(400).json({

@@ -4,13 +4,6 @@ import nodemailer from "nodemailer";
 import { resetPasswordTemplate } from "../utils/resetPasswordTemplate.js";
 import crypto from "crypto";
 
-// import fs from "fs";
-// import path from "path";
-
-// const htmlPath = path.resolve("./backend/utils/resetPasswordTemplate.html");
-// console.log("html path", htmlPath);
-// const htmlContent = fs.readFileSync(htmlPath, "utf-8");
-
 export const getUsers = async (req, res) => {
   try {
     const users = await User.find();
